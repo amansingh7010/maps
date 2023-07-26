@@ -1,0 +1,14 @@
+{
+  "name": "maps",
+  "description": "An application that renders random Users and Companies on Google Maps.",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Amanjot Singh",
+  "license": "ISC",
+  "dependencies": {
+    "@faker-js/faker": "^8.0.2"
+  }
+}
