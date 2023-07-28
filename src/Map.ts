@@ -7,6 +7,7 @@ interface Mappable {
     lat: number;
     lng: number;
   };
+  markerContent(): string;
 }
 
 const mapOptions = {
@@ -19,8 +20,9 @@ const mapOptions = {
 };
 
 export class Map {
-  private divId: string;
+  private MapsLibrary: google.maps.MapsLibrary;
   private MarkerLibrary: google.maps.MarkerLibrary;
+  private divId: string;
   private googleMap: google.maps.Map;
 
   constructor(divId: string) {
@@ -35,8 +37,9 @@ export class Map {
 
     await loader
       .importLibrary('maps')
-      .then(({ Map }) => {
-        this.googleMap = new Map(
+      .then((MapsLibrary) => {
+        this.MapsLibrary = MapsLibrary;
+        this.googleMap = new this.MapsLibrary.Map(
           document.getElementById(this.divId) as HTMLElement,
           mapOptions
         );
@@ -56,12 +59,19 @@ export class Map {
   }
 
   addMarker(mappable: Mappable): void {
-    new this.MarkerLibrary.AdvancedMarkerElement({
+    const marker = new this.MarkerLibrary.AdvancedMarkerElement({
       map: this.googleMap,
       position: {
         lat: mappable.location.lat,
         lng: mappable.location.lng,
       },
+    });
+
+    marker.addListener('click', () => {
+      const infoIndow = new this.MapsLibrary.InfoWindow({
+        content: mappable.markerContent(),
+      });
+      infoIndow.open(this.googleMap, marker);
     });
   }
 }
