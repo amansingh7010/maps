@@ -1,31 +1,67 @@
 import { Loader } from '@googlemaps/js-api-loader';
 
+// Instructions to every other class
+// on how they can be an argument to 'addMarker'
+interface Mappable {
+  location: {
+    lat: number;
+    lng: number;
+  };
+}
+
+const mapOptions = {
+  center: {
+    lat: 0,
+    lng: 0,
+  },
+  zoom: 2,
+  mapId: 'MAP_ID',
+};
+
 export class Map {
+  private divId: string;
+  private MarkerLibrary: google.maps.MarkerLibrary;
   private googleMap: google.maps.Map;
 
   constructor(divId: string) {
+    this.divId = divId;
+  }
+
+  async initMap(): Promise<void> {
     const loader = new Loader({
       apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+      version: 'weekly',
     });
 
-    const mapOptions = {
-      center: {
-        lat: 0,
-        lng: 0,
-      },
-      zoom: 1,
-    };
-
-    loader
+    await loader
       .importLibrary('maps')
       .then(({ Map }) => {
         this.googleMap = new Map(
-          document.getElementById(divId) || document.createElement('div'),
+          document.getElementById(this.divId) as HTMLElement,
           mapOptions
         );
       })
       .catch((e) => {
         console.log(e);
       });
+
+    await loader
+      .importLibrary('marker')
+      .then((MarkerLibrary) => {
+        this.MarkerLibrary = MarkerLibrary;
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }
+
+  addMarker(mappable: Mappable): void {
+    new this.MarkerLibrary.AdvancedMarkerElement({
+      map: this.googleMap,
+      position: {
+        lat: mappable.location.lat,
+        lng: mappable.location.lng,
+      },
+    });
   }
 }
